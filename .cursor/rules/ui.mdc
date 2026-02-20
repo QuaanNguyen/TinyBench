@@ -16,7 +16,7 @@ Include Pico Sand:
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.sand.min.css">
 ```
 
-Enable dark theme via `data-theme="dark"` on the root `<html>` (see `app/templates/index.html`).
+Enable dark theme via `data-theme="dark"` on the root `<html>` (see `app/templates/layout.html`).
 
 ## Project Theme Overrides (source of truth)
 
@@ -48,4 +48,44 @@ All theme token overrides live in `app/static/css/app.css` under `[data-theme="d
 
 ## Accent usage
 
-- Use Pico’s `--pico-primary-background` / `--pico-primary-inverse` for sand-highlight surfaces (e.g. hero `<kbd>` background).
+- Use Pico's `--pico-primary-background` / `--pico-primary-inverse` for sand-highlight surfaces (e.g. hero `<kbd>` background).
+
+## Base Layout (`layout.html`)
+
+All pages extend `app/templates/layout.html`. Structure:
+
+```html
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <!-- Pico Sand + app.css loaded here -->
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <aside><!-- Sidebar nav --></aside>
+    <main>{% block content %}{% endblock %}</main>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+```
+
+**Blocks available to child templates:**
+- `title`: Page title (default: "Tiny Bench")
+- `head`: Extra `<head>` content (styles, meta)
+- `content`: Main page content inside `<main>`
+- `scripts`: JS at end of body
+
+**Sidebar navigation:**
+- Fixed `<aside>` with vertical `<nav>` links
+- Routes: `/` (Chat), `/ranking`, `/power`, `/fight`
+- Use `class="secondary"` for nav links
+
+**Child template example:**
+
+```html
+{% extends "layout.html" %}
+{% block title %}Chat - Tiny Bench{% endblock %}
+{% block content %}
+    <h1>Chat</h1>
+{% endblock %}
+```

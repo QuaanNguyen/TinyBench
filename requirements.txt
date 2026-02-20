@@ -2,6 +2,9 @@
 fastapi>=0.115.0
 uvicorn[standard]>=0.32.0
 jinja2>=3.1.0
+llama-cpp-python>=0.1.40
+huggingface-hub>=0.27.0
+aiosqlite>=0.22.0
 
 # Dev / test
 pytest>=8.0.0

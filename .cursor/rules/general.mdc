@@ -63,11 +63,18 @@ alwaysApply: true
 # Project structure
 
 - `app/main.py`: FastAPI app entrypoint
+- `app/config.py`: Centralized configuration (paths, constants)
 - `app/routers/`: API routes (including SSE endpoints)
 - `app/services/`: LLM invocation, job management, power monitoring integration
+  - `model_registry.py`: Model discovery, listing, random selection
+  - `model_downloader.py`: HuggingFace download logic
+  - `inference/`: Inference runners
+    - `base.py`: Abstract base class for inference
+    - `gguf_runner.py`: llama-cpp-python wrapper for GGUF models
 - `app/templates/`: Jinja2 templates
 - `app/static/js/`: Vanilla JS (SSE clients, UI behavior)
 - `app/static/css/`: Pico overrides and custom CSS
+- `models/gguf/`: GGUF model weights (gitignored, not in version control)
 - `tests/`: Pytest tests
 
 # API conventions

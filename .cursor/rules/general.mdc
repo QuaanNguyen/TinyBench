@@ -5,15 +5,17 @@ alwaysApply: true
 
 # Commands
 
-- `python -m venv .venv`: Create virtual environment (first time)
+All commands must use the `.venv` Python. Never use system or conda Python.
+
+- `.venv/bin/python -m venv .venv`: Create virtual environment (first time)
 - `source .venv/bin/activate` (Linux/macOS) or `.venv\Scripts\activate` (Windows): Activate venv
-- `pip install -r requirements.txt`: Install dependencies
-- `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`: Run dev server
-- `pytest -q`: Run tests (prefer single test files for speed: `pytest -q tests/test_streaming.py`)
-- `ruff check .`: Lint
-- `ruff format .`: Format
-- `mypy app`: Typecheck (if configured)
-- `python -m compileall app`: Quick sanity check for syntax
+- `.venv/bin/python -m pip install -r requirements.txt`: Install dependencies
+- `.venv/bin/python -m uvicorn app.main:app --reload --reload-dir app --host 0.0.0.0 --port 8000`: Run dev server
+- `.venv/bin/python -m pytest -q`: Run tests (prefer single test files for speed)
+- `.venv/bin/python -m ruff check .`: Lint
+- `.venv/bin/python -m ruff format .`: Format
+- `.venv/bin/python -m mypy app`: Typecheck (if configured)
+- `.venv/bin/python -m compileall app`: Quick sanity check for syntax
 
 # Code style
 

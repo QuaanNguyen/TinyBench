@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -87,3 +88,52 @@ class TestSSEStream:
             body = res.text
             assert "event: error" in body
             assert "llama_context" in body
+
+
+@pytest.mark.asyncio
+class TestCancelDuringStream:
+    async def test_cancel_mid_stream_truncates_output(self):
+        """SSE stream should end early when cancel is called mid-generation."""
+        cancelled = False
+
+        async def fake_stream(job_id):
+            nonlocal cancelled
+            yield {"event": "token", "data": "Hello"}
+            yield {"event": "token", "data": " world"}
+            if cancelled:
+                yield {"event": "done", "data": ""}
+                return
+            yield {"event": "token", "data": " more"}
+            yield {"event": "done", "data": ""}
+
+        with (
+            patch(
+                "app.services.job_manager.token_stream", side_effect=fake_stream
+            ),
+            patch(
+                "app.services.job_manager.cancel_job", return_value=True
+            ) as mock_cancel,
+        ):
+            async with AsyncClient(
+                transport=ASGITransport(app=app), base_url="http://test"
+            ) as ac:
+                cancel_res = await ac.post("/api/chat/job1/cancel")
+                assert cancel_res.json()["status"] == "cancelled"
+                mock_cancel.assert_called_once_with("job1")
+
+                cancelled = True
+                sse_res = await ac.get("/sse/chat/job1")
+
+            body = sse_res.text
+            assert "event: token\ndata: Hello" in body
+            assert "event: done" in body
+            assert "more" not in body
+
+    async def test_cancel_returns_cancelled_for_active_job(self):
+        with patch("app.services.job_manager.cancel_job", return_value=True):
+            async with AsyncClient(
+                transport=ASGITransport(app=app), base_url="http://test"
+            ) as ac:
+                res = await ac.post("/api/chat/active-job/cancel")
+            assert res.status_code == 200
+            assert res.json() == {"status": "cancelled"}

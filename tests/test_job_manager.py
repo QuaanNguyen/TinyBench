@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
+from threading import Event
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -103,7 +105,7 @@ class TestCancelJob:
     @patch.object(job_manager, "_resolve_model_path")
     @patch.object(job_manager, "runner")
     async def test_cancel_sets_event(self, mock_runner, mock_resolve):
-        mock_resolve.return_value = "/tmp/fake.gguf"
+        mock_resolve.return_value = Path("/tmp/fake.gguf")
 
         def slow_generate(prompt, *, max_tokens=512, cancel=None):
             for t in ["a", "b", "c"]:
@@ -119,6 +121,41 @@ class TestCancelJob:
 
     def test_cancel_nonexistent(self):
         assert job_manager.cancel_job("nope") is False
+
+    @pytest.mark.asyncio
+    @patch.object(job_manager, "_resolve_model_path")
+    @patch.object(job_manager, "runner")
+    async def test_cancel_during_streaming_truncates_and_ends_with_done(
+        self, mock_runner, mock_resolve
+    ):
+        """Cancel mid-stream: output is truncated, stream ends with 'done'."""
+        mock_resolve.return_value = Path("/tmp/fake.gguf")
+        mock_runner.load = MagicMock()
+
+        gate = Event()
+
+        def blocking_generate(prompt, *, max_tokens=512, cancel=None):
+            for t in ["tok1", "tok2", "tok3", "tok4", "tok5"]:
+                if cancel and cancel.is_set():
+                    break
+                yield t
+                gate.wait(timeout=0.05)
+
+        mock_runner.generate = blocking_generate
+
+        job_id = await job_manager.create_job("m", "p")
+        await asyncio.sleep(0.08)
+
+        job_manager.cancel_job(job_id)
+
+        events = []
+        async for evt in job_manager.token_stream(job_id):
+            events.append(evt)
+
+        types = [e["event"] for e in events]
+        assert types[-1] == "done"
+        token_count = sum(1 for t in types if t == "token")
+        assert token_count < 5
 
 
 class TestResolveModelPath:

@@ -12,9 +12,13 @@
   const chatSend = document.getElementById("chat-send");
   const chatModel = document.getElementById("chat-model");
 
+  const iconSend = chatSend.querySelector(".icon-send");
+  const iconStop = chatSend.querySelector(".icon-stop");
+
   let models = [];
   let generating = false;
   let activeSource = null;
+  let activeJobId = null;
 
   const FLUSH_INTERVAL_MS = 50;
 
@@ -72,7 +76,9 @@
 
   function setGenerating(val) {
     generating = val;
-    chatSend.disabled = val;
+    iconSend.style.display = val ? "none" : "";
+    iconStop.style.display = val ? "" : "none";
+    chatSend.setAttribute("aria-label", val ? "Stop" : "Send");
   }
 
   async function sendMessage(inputEl, modelEl) {
@@ -107,6 +113,7 @@
         return;
       }
       const { job_id } = await res.json();
+      activeJobId = job_id;
       streamTokens(job_id, bubbleEl);
     } catch {
       bubbleEl.textContent = "Network error.";
@@ -142,6 +149,7 @@
         activeSource.close();
         activeSource = null;
       }
+      activeJobId = null;
       setGenerating(false);
     }
 
@@ -185,9 +193,13 @@
     handleKeydown(e, landingInput, landingModel)
   );
 
-  chatSend.addEventListener("click", () =>
-    sendMessage(chatInput, chatModel)
-  );
+  chatSend.addEventListener("click", () => {
+    if (generating && activeJobId) {
+      fetch("/api/chat/" + activeJobId + "/cancel", { method: "POST" });
+      return;
+    }
+    sendMessage(chatInput, chatModel);
+  });
   chatInput.addEventListener("keydown", (e) =>
     handleKeydown(e, chatInput, chatModel)
   );

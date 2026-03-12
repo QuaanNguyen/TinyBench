@@ -45,6 +45,14 @@ iMessage-style bubble layout. Shown after first message via JS class toggle.
 - `.model-pill` — compact `<select>`, `font-size: 0.7rem`, transparent bg, muted border, `border-radius: 12px`.
 - `.input-row` — flex row: `textarea#chat-input` (flex: 1, `border-radius: 18px`) + `.send-btn` (40px circle, `--pico-primary-background`).
 
+### Send / Stop Toggle
+
+- `#chat-send` button contains two SVGs: `.icon-send` (arrow) and `.icon-stop` (filled square, `hidden` by default).
+- `setGenerating(true)`: hides `.icon-send`, shows `.icon-stop`, sets `aria-label="Stop"`.
+- `setGenerating(false)`: reverses — shows `.icon-send`, hides `.icon-stop`, sets `aria-label="Send"`.
+- Click during generation: fires `POST /api/chat/{activeJobId}/cancel` (fire-and-forget). The SSE stream ends via a `done` event, which triggers `cleanup()` and resets the icon.
+- `activeJobId` is set from `POST /api/chat` response, cleared in `cleanup()`.
+
 ## Model Selection
 
 - Models fetched from `GET /api/models` on page load (returns `[{id, name}]`).
@@ -62,5 +70,5 @@ iMessage-style bubble layout. Shown after first message via JS class toggle.
 - **Template:** `app/templates/chat.html`
 - **JS:** `app/static/js/chat.js`
 - **Styles:** `app/static/css/app.css`
-- **Backend:** `app/main.py` (`GET /`, `GET /api/models`)
+- **Backend:** `app/main.py` (`GET /`, `GET /api/models`, `POST /api/chat`, `GET /sse/chat/{job_id}`, `POST /api/chat/{job_id}/cancel`)
 - **Theme reference:** `../ui.mdc`

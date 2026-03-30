@@ -75,6 +75,18 @@ All pages extend `app/templates/layout.html`. Structure:
 - `content`: Main page content inside `<main>`
 - `scripts`: JS at end of body
 
+## Markdown Rendering (post-stream)
+
+`layout.html` loads `marked` (UMD build) from CDN: `https://cdn.jsdelivr.net/npm/marked@15/lib/marked.umd.js`.
+
+After SSE streaming completes, each output element's `textContent` is parsed via `marked.parse()` and replaced with `innerHTML`. The element receives a `.md-rendered` class which:
+- Resets `white-space` from `pre-wrap` to `normal`.
+- Styles `pre > code` blocks (dark bg `#0d0d0f`, border, rounded corners).
+- Styles inline `code` (subtle bg, small padding, rounded).
+- Provides compact spacing for `p`, `ul`, `ol`, `blockquote`, `table`, `h1`–`h6`.
+
+All `.md-rendered` styles live in the `/* Rendered markdown (post-stream) */` section of `app/static/css/app.css`.
+
 **Sidebar navigation:**
 - Fixed `<aside>` with vertical `<nav>` links
 - Routes: `/` (Chat), `/ranking`, `/power`, `/fight`

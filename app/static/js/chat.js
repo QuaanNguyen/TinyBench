@@ -121,6 +121,14 @@
     }
   }
 
+  function renderMarkdown(el) {
+    var raw = el.textContent;
+    if (typeof marked !== "undefined" && raw) {
+      el.innerHTML = marked.parse(raw);
+      el.classList.add("md-rendered");
+    }
+  }
+
   function streamTokens(jobId, bubbleEl) {
     let buffer = "";
     let flushTimer = null;
@@ -145,6 +153,8 @@
         flushTimer = null;
       }
       flush();
+      renderMarkdown(bubbleEl);
+      scrollToBottom();
       if (activeSource) {
         activeSource.close();
         activeSource = null;

@@ -4,9 +4,12 @@ import gc
 import logging
 from pathlib import Path
 from threading import Event, Lock
-from typing import Iterator
+from typing import Any, Iterator
 
-from llama_cpp import Llama
+try:
+    from llama_cpp import Llama
+except ImportError:  # pragma: no cover - depends on optional native package
+    Llama = None  # type: ignore[assignment]
 
 from app.services.inference.base import InferenceRunner
 
@@ -27,11 +30,17 @@ class GGUFRunner(InferenceRunner):
         self._n_ctx = n_ctx
         self._n_threads = n_threads
         self._n_gpu_layers = n_gpu_layers
-        self._model: Llama | None = None
+        self._model: Any | None = None
         self._loaded_path: Path | None = None
         self._lock = Lock()
 
     def load(self, model_path: Path) -> None:
+        if Llama is None:
+            raise RuntimeError(
+                "llama-cpp-python is not installed. Install the package and its "
+                "native build prerequisites to enable GGUF inference."
+            )
+
         with self._lock:
             if self._loaded_path == model_path and self._model is not None:
                 return

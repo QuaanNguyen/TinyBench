@@ -1,4 +1,8 @@
-from fastapi import FastAPI, Request
+import random
+import uuid
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, StreamingResponse
@@ -6,8 +10,16 @@ from pydantic import BaseModel
 
 from app.services.model_registry import list_models
 from app.services import job_manager
+from app.services import fight_store
 
-app = FastAPI(title="Tiny Bench")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    fight_store.init_db()
+    yield
+
+
+app = FastAPI(title="Tiny Bench", lifespan=lifespan)
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
@@ -86,3 +98,50 @@ async def cancel_chat(job_id: str):
     if not ok:
         return {"status": "not_found"}
     return {"status": "cancelled"}
+
+
+# ── Fight endpoints ──
+
+
+class FightRequest(BaseModel):
+    prompt: str
+
+
+class VoteRequest(BaseModel):
+    winner: str  # "A" or "B"
+
+
+@app.post("/api/fight")
+async def start_fight(req: FightRequest):
+    models = list_models()
+    if len(models) < 2:
+        raise HTTPException(status_code=400, detail="Need at least 2 models for a fight")
+
+    chosen = random.sample(models, 2)
+    model_a, model_b = chosen[0].stem, chosen[1].stem
+
+    fight_id = uuid.uuid4().hex[:12]
+    job_a = await job_manager.create_job(model_a, req.prompt)
+    job_b = await job_manager.create_job(model_b, req.prompt)
+
+    fight_store.save_fight(fight_id, model_a, model_b, req.prompt)
+
+    return {
+        "fight_id": fight_id,
+        "jobs": [
+            {"job_id": job_a, "label": "A"},
+            {"job_id": job_b, "label": "B"},
+        ],
+    }
+
+
+@app.post("/api/fight/{fight_id}/vote")
+async def vote_fight(fight_id: str, req: VoteRequest):
+    if req.winner not in ("A", "B"):
+        raise HTTPException(status_code=400, detail="winner must be 'A' or 'B'")
+
+    result = fight_store.record_vote(fight_id, req.winner)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Fight not found")
+
+    return result

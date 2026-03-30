@@ -271,3 +271,222 @@ main.chat-active {
   background-color: transparent;
   border: 1px solid var(--pico-muted-border-color);
 }
+
+/* ── Fight view ── */
+
+main.fight-active {
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.fight-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 1rem;
+  gap: 0.75rem;
+}
+
+.fight-header {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  background-color: var(--pico-card-background-color);
+  border: 1px solid var(--pico-muted-border-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fight-prompt-label {
+  color: var(--pico-muted-color);
+  margin-right: 0.4rem;
+}
+
+.fight-prompt-text {
+  color: var(--pico-base-color);
+}
+
+.fight-panes {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  min-height: 0;
+}
+
+.fight-pane {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--pico-card-background-color);
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.fight-pane.winner {
+  border-color: var(--pico-primary-background);
+}
+
+.fight-pane.loser {
+  opacity: 0.55;
+}
+
+.pane-label {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--pico-muted-color);
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pane-output {
+  flex: 1;
+  padding: 0.75rem;
+  overflow-y: auto;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--pico-base-color);
+}
+
+.pane-vote {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0.5rem;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: 8px;
+  background-color: transparent;
+  color: var(--pico-base-color);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.pane-vote:hover:not([disabled]) {
+  background-color: var(--pico-primary-background);
+  color: var(--pico-primary-inverse);
+  border-color: var(--pico-primary-background);
+}
+
+.pane-vote[disabled] {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .fight-panes {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Rendered markdown (post-stream) ── */
+
+.md-rendered {
+  white-space: normal;
+}
+
+.md-rendered p {
+  margin: 0 0 0.5em;
+}
+
+.md-rendered p:last-child {
+  margin-bottom: 0;
+}
+
+.md-rendered pre {
+  background-color: #0d0d0f;
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  overflow-x: auto;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  margin: 0.5em 0;
+}
+
+.md-rendered pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+  color: #c8c2b4;
+}
+
+.md-rendered code {
+  background-color: rgba(63, 63, 70, 0.45);
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+.md-rendered ul,
+.md-rendered ol {
+  margin: 0.4em 0;
+  padding-left: 1.4em;
+}
+
+.md-rendered li {
+  margin-bottom: 0.2em;
+}
+
+.md-rendered blockquote {
+  border-left: 3px solid var(--pico-muted-border-color);
+  margin: 0.5em 0;
+  padding: 0.25em 0.75em;
+  color: var(--pico-muted-color);
+}
+
+.md-rendered h1,
+.md-rendered h2,
+.md-rendered h3,
+.md-rendered h4,
+.md-rendered h5,
+.md-rendered h6 {
+  margin: 0.6em 0 0.3em;
+  font-size: 0.95em;
+  font-weight: 600;
+}
+
+.md-rendered h1 { font-size: 1.15em; }
+.md-rendered h2 { font-size: 1.05em; }
+
+.md-rendered table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.5em 0;
+  font-size: 0.82rem;
+}
+
+.md-rendered th,
+.md-rendered td {
+  border: 1px solid var(--pico-muted-border-color);
+  padding: 0.3em 0.5em;
+  text-align: left;
+}
+
+.md-rendered th {
+  background-color: rgba(63, 63, 70, 0.3);
+  font-weight: 600;
+}
+
+.md-rendered hr {
+  border: none;
+  border-top: 1px solid var(--pico-muted-border-color);
+  margin: 0.6em 0;
+}
+
+.md-rendered strong {
+  font-weight: 600;
+}
+
+.md-rendered a {
+  color: var(--pico-primary);
+  text-decoration: underline;
+}

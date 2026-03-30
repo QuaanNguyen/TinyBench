@@ -38,6 +38,7 @@ iMessage-style bubble layout. Shown after first message via JS class toggle.
 - `.bubble` — `max-width: 75%`, `border-radius: 18px`, flat colors, no gradients.
   - `.bubble.user` — `--pico-primary-background` bg, `--pico-primary-inverse` text, tail bottom-right (`4px`).
   - `.bubble.assistant` — `--pico-card-background-color` bg, `--pico-base-color` text, `--pico-muted-border-color` border, tail bottom-left (`4px`).
+  - After streaming completes, `renderMarkdown(bubbleEl)` parses the raw text with `marked.parse()` and sets `innerHTML`. The bubble gains `.md-rendered` which switches `white-space` to `normal` and applies markdown-specific styles (code blocks, lists, etc.).
 
 ### Input Bar (`.chat-input-bar`)
 

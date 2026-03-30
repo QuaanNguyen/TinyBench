@@ -38,6 +38,7 @@ All commands must use the `.venv` Python. Never use system or conda Python.
   - Keep JS in `app/static/js/` and load with `defer`.
   - Update DOM via `textContent`, not `innerHTML`, for streamed tokens.
   - Throttle DOM writes for streaming (buffer tokens and flush every 30–80ms).
+  - After streaming completes, render markdown via `renderMarkdown(el)` which uses `marked.parse()` and sets `innerHTML` + adds `.md-rendered` class.
 - CSS (Pico.css):
   - Pico.css is the baseline; custom overrides go in `app/static/css/app.css`.
   - Do not add large CSS frameworks (Tailwind/Bootstrap).
@@ -91,4 +92,4 @@ All commands must use the `.venv` Python. Never use system or conda Python.
 
 - Do not introduce Node/npm tooling unless explicitly required.
 - Do not add heavyweight client-side frameworks.
-- Do not render markdown incrementally during streaming (too heavy for Pi); render plain text.
+- Do not render markdown incrementally during streaming (too heavy for Pi); render plain text during streaming, then call `renderMarkdown()` once on stream completion to parse with `marked` and set `innerHTML`.

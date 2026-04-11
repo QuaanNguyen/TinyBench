@@ -4,19 +4,15 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
+
+import pytest
 from threading import Event
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from app.services import job_manager
+from app.services.model_registry import BENCH_MODEL_GGUF_STEMS
 
-ALL_MODELS = [
-    "Phi-4-mini-instruct-Q4_K_M",
-    "Qwen3-4B-Q4_K_M",
-    "gemma-3-1b-it-q4_0_s",
-    "gemma-3-4b-it-q4_0_s",
-]
+ALL_MODELS = sorted(BENCH_MODEL_GGUF_STEMS)
 
 
 @pytest.fixture(autouse=True)
@@ -158,9 +154,19 @@ class TestCancelJob:
         assert token_count < 5
 
 
+@pytest.fixture
+def patched_models_dir(tmp_path: Path):
+    root = tmp_path / "gguf"
+    root.mkdir()
+    for stem in BENCH_MODEL_GGUF_STEMS:
+        (root / f"{stem}.gguf").write_bytes(b"")
+    with patch.object(job_manager, "MODELS_DIR", root):
+        yield root
+
+
 class TestResolveModelPath:
     @pytest.mark.parametrize("model_id", ALL_MODELS)
-    def test_resolves_each_model(self, model_id):
+    def test_resolves_each_model(self, patched_models_dir, model_id):
         path = job_manager._resolve_model_path(model_id)
         assert path.stem == model_id
         assert path.suffix == ".gguf"

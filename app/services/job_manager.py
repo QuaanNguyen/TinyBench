@@ -46,6 +46,21 @@ def _run_inference(job: Job, loop: asyncio.AbstractEventLoop) -> None:
             job.prompt, max_tokens=512, cancel=job.cancel_event
         ):
             loop.call_soon_threadsafe(job.queue.put_nowait, token)
+
+        metrics = runner.get_last_metrics()
+        if metrics:
+            try:
+                from app.services import ranking_store
+
+                ranking_store.save_job_metrics(
+                    job_id=job.job_id,
+                    model_id=job.model_id,
+                    throughput_tps=metrics.get("throughput_tps"),  # type: ignore[arg-type]
+                    n_tokens=metrics.get("n_tokens"),  # type: ignore[arg-type]
+                    generation_ms=metrics.get("generation_ms"),  # type: ignore[arg-type]
+                )
+            except Exception:
+                logger.debug("Could not save job metrics for %s", job.job_id)
     except Exception as exc:
         logger.exception("Inference error for job %s", job.job_id)
         loop.call_soon_threadsafe(
@@ -64,6 +79,11 @@ async def create_job(model_id: str, prompt: str) -> str:
     loop = asyncio.get_running_loop()
     loop.run_in_executor(None, _run_inference, job, loop)
     return job_id
+
+
+def get_context_lengths() -> dict[str, int]:
+    """Return cached context lengths for all models loaded so far."""
+    return runner.get_known_context_lengths()
 
 
 def cancel_job(job_id: str) -> bool:

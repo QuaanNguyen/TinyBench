@@ -16,8 +16,9 @@ alwaysApply: false
 ## GGUFRunner (`app/services/inference/gguf_runner.py`)
 
 - CPU-only: `n_gpu_layers=0` always. No Metal/CUDA paths.
-- Context retry: `load()` halves `n_ctx` on `ValueError` (2048 → 1024 → 512 → 256) with `gc.collect()` between attempts to free partial model allocations.
+- Context size: `load()` passes `n_ctx=0` to let llama.cpp auto-detect from model metadata. No retry loop.
 - Single-model cache: only reloads if `model_path` changes.
+- Chat completion: `generate()` wraps the prompt as `[{"role": "user", "content": prompt}]` and calls `create_chat_completion()` so the model's built-in chat template is applied automatically.
 - `generate()` accepts a `threading.Event` for cancellation; check it between tokens.
 
 ## Job Manager (`app/services/job_manager.py`)

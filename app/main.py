@@ -11,11 +11,13 @@ from pydantic import BaseModel
 from app.services.model_registry import list_models
 from app.services import job_manager
 from app.services import fight_store
+from app.services import ranking_store
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     fight_store.init_db()
+    ranking_store.init_db()
     yield
 
 
@@ -98,6 +100,15 @@ async def cancel_chat(job_id: str):
     if not ok:
         return {"status": "not_found"}
     return {"status": "cancelled"}
+
+
+# ── Ranking endpoints ──
+
+
+@app.get("/api/ranking")
+async def get_ranking():
+    ctx = job_manager.get_context_lengths()
+    return ranking_store.compute_rankings(context_lengths=ctx)
 
 
 # ── Fight endpoints ──

@@ -386,6 +386,133 @@ main.fight-active {
   }
 }
 
+/* ── Ranking view ── */
+
+main.ranking-active {
+  justify-content: flex-start;
+  padding: 2rem;
+}
+
+.ranking-container {
+  width: 100%;
+  max-width: 960px;
+  align-self: center;
+}
+
+.ranking-header {
+  margin-bottom: 1.5rem;
+}
+
+.ranking-subtitle {
+  color: var(--pico-muted-color);
+  font-size: 0.85rem;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.ranking-stats {
+  color: var(--pico-muted-color);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+.ranking-empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--pico-muted-color);
+}
+
+.ranking-empty a {
+  color: var(--pico-primary);
+}
+
+.ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  table-layout: auto;
+}
+
+.ranking-table thead th {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--pico-muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  background: transparent;
+}
+
+.ranking-table tbody tr {
+  border-bottom: 1px solid rgba(63, 63, 70, 0.2);
+  transition: background-color 0.1s;
+}
+
+.ranking-table tbody tr:hover {
+  background-color: rgba(63, 63, 70, 0.15);
+}
+
+.ranking-table td {
+  padding: 0.6rem 0.75rem;
+  vertical-align: middle;
+  border: none;
+}
+
+.ranking-table .col-rank {
+  width: 60px;
+  text-align: center;
+}
+
+.ranking-table .col-model {
+  text-align: left;
+}
+
+.ranking-table .col-numeric {
+  text-align: right;
+}
+
+.ranking-rank {
+  text-align: center;
+  font-weight: 600;
+  color: var(--pico-h5-color);
+}
+
+.ranking-model {
+  text-align: left;
+}
+
+.ranking-model-name {
+  color: var(--pico-h6-color);
+  font-weight: 500;
+}
+
+.ranking-numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ranking-ci {
+  color: var(--pico-muted-color);
+  font-size: 0.78em;
+}
+
+.ranking-muted {
+  color: var(--pico-muted-color);
+}
+
+@media (max-width: 640px) {
+  .ranking-table {
+    font-size: 0.78rem;
+  }
+
+  .ranking-table td,
+  .ranking-table th {
+    padding: 0.4rem 0.5rem;
+  }
+
+}
+
 /* ── Rendered markdown (post-stream) ── */
 
 .md-rendered {
